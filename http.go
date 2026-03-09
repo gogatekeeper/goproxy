@@ -61,7 +61,7 @@ func (proxy *ProxyHttpServer) handleHttp(w http.ResponseWriter, r *http.Request)
 	if origBody != resp.Body {
 		resp.Header.Del("Content-Length")
 	}
-	copyHeaders(w.Header(), resp.Header, proxy.KeepDestinationHeaders)
+	copyHeaders(w.Header(), resp.Header, proxy.KeepDestinationHeaders, proxy.OverrideDestinationHeaders)
 	w.WriteHeader(resp.StatusCode)
 
 	if isWebSocketHandshake(resp.Header) {

@@ -16,6 +16,7 @@ type ProxyHttpServer struct {
 	sess int64
 	// KeepDestinationHeaders indicates the proxy should retain any headers present in the http.Response before proxying
 	KeepDestinationHeaders bool
+        OverrideDestinationHeaders bool
 	// setting Verbose to true will log information on each request sent to the proxy
 	Verbose         bool
 	Logger          Logger
@@ -55,15 +56,23 @@ type ProxyHttpServer struct {
 
 var hasPort = regexp.MustCompile(`:\d+$`)
 
-func copyHeaders(dst, src http.Header, keepDestHeaders bool) {
+func copyHeaders(dst, src http.Header, keepDestHeaders bool, overrideDestHeaders bool) {
 	if !keepDestHeaders {
 		for k := range dst {
 			dst.Del(k)
 		}
 	}
-	for k, vs := range src {
-		// direct assignment to avoid canonicalization
-		dst[k] = append(dst[k], vs...)
+
+	if overrideDestHeaders {
+		for k, vs := range src {
+			// direct assignment to avoid canonicalization
+			dst[k] = append([]string(nil), vs...)
+		}
+	} else {
+		for k, vs := range src {
+			// direct assignment to avoid canonicalization
+			dst[k] = append(dst[k], vs...)
+		}
 	}
 }
 
